@@ -1,10 +1,18 @@
 const express = require('express')
 const app = express()
 const session = require('express-session')
+const RedisStore = require('connect-redis')(session)
+const redis = require('redis')
 const bodyParser = require('body-parser')
 const cors = require('cors')
+const config = require('./config')
+var client  = redis.createClient({
+    host: config.redis.host,
+    port: config.redis.port
+})
 
 var sess = {
+  store: new RedisStore({ client }),
   secret: 'secret',
   cookie: {},
   resave: false,
@@ -51,6 +59,6 @@ app.get('/secured', (req, res) => {
   return res.send({ username, email: 'matt@test.com' })
 })
 
-app.listen(3000, () => {
-  console.log('Server started on port 3000')
+app.listen(config.port, () => {
+  console.log(`Server started on port ${config.port}`)
 })
