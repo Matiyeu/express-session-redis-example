@@ -16,7 +16,10 @@ var sess = {
   secret: 'secret',
   cookie: {},
   resave: false,
-  saveUninitialized: true
+  saveUninitialized: false,
+ // ttl: 20, // in seconds
+  cookie: { maxAge: 20000 },
+  unset: 'destroy'
 }
 
 if (app.get('env') === 'production') {
@@ -57,6 +60,23 @@ app.get('/secured', (req, res) => {
   const { username } = req.session
 
   return res.send({ username, email: 'matt@test.com' })
+})
+
+app.get('/logout', (req,res) => {
+  req.session.destroy((err) => {
+    if(err){
+      res.send({ error: true })
+    } else {
+      res.send({ success: true })
+    }
+  })
+})
+
+app.get('/sessions', (req, res) => {
+  var store = req.sessionStore
+  store.all((error, sessions) => {
+    res.send(sessions)
+  })
 })
 
 app.listen(config.port, () => {
